@@ -307,10 +307,11 @@
       // Basic data structures
       const selected = new Map();
       const colorFor = (id) => {
-        // deterministic color based on id
-        const seed = parseInt(id,10) || (''+id).length;
-        const hues = [22, 200, 330, 140, 260, 18, 45];
-        return `hsl(${hues[seed % hues.length]} 85% 55%)`;
+        // deterministic, broadly-distributed hue per id using golden angle
+        const n = parseInt(id,10) || 0;
+        const golden = 137.508; // golden angle in degrees
+        const hue = Math.round((n * golden) % 360);
+        return `hsl(${hue} 75% 55%)`;
       };
 
       const svg = document.querySelector('svg.geolonia-svg-map');
