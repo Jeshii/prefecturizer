@@ -3,75 +3,20 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Japan Prefecture Selector</title>
+    <title>The Blueribbon — Prefecturizer</title>
+    <meta http-equiv="refresh" content="0; url=prefecturizer.html">
     <style>
-      :root{--accent:#0b74de;--selected:#f39c12;--bg:#fff}
-      html,body{box-sizing:border-box;width:100%}
-      /* Reserve scrollbar gutter to prevent layout shift when content grows */
-      html{scrollbar-gutter:stable both-edges;}
-      /* Fallback: ensure vertical scrollbar is always present to avoid reflow on some browsers */
-      body{overflow-y:scroll}
-      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;display:block;padding:24px;background:var(--bg);color:#111}
-      .container{display:flex;gap:24px;align-items:flex-start;width:100%}
-      .map{flex:1 1 0%;min-width:420px;border:1px solid #e6e6e6;padding:8px;border-radius:8px;background:#fbfbfc}
-      svg{width:100%;height:auto;display:block}
-      .sidebar{width:260px;flex:0 0 260px;transition:transform 220ms ease,opacity 180ms;display:flex;flex-direction:column}
-      body.sidebar-collapsed .sidebar{transform:translateX(100%);opacity:0;pointer-events:none}
-      body.sidebar-collapsed .map{flex:1 1 100%}
-      @media (max-width:720px){
-        /* default collapsed on small screens */
-        body:not(.sidebar-expanded) .sidebar{transform:translateX(100%);opacity:0;pointer-events:none}
-      }
-      /* Print rules: show full sidebar and list when printing */
-      @media print{
-        html,body{overflow:visible}
-        /* Stack side-by-side layout into a vertical flow for printing so lists can paginate */
-        .container{display:block}
-        .map{width:100%;display:block}
-        .sidebar{width:100%;display:block;max-height:none;margin-top:16px}
-        .selected-list{max-height:none;overflow:visible;border:0;padding:0}
-        /* allow the list to break across pages cleanly */
-        .selected-list, .selected-list *{break-inside:auto}
-        .pref-item{break-inside:avoid;page-break-inside:avoid}
-        /* make sure header and controls don't clutter printout */
-        #toggleSidebar, .clear{display:none}
-        h1{font-size:1rem}
-      }
-      h1{font-size:1.2rem;margin:0 0 12px}
-      .selected-list{background:#fff;border:1px solid #eee;padding:12px;border-radius:8px;min-height:200px;overflow:auto}
-      /* ensure sidebar list doesn't grow beyond viewport height */
-      .sidebar { max-height: calc(100vh - 120px); }
-      .selected-list { max-height: calc(100vh - 220px); }
-      .pref-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:6px}
-      .pref-label{display:flex;gap:8px;align-items:center}
-      .swatch{width:18px;height:18px;border-radius:4px;border:1px solid #ccc}
-      button.clear{margin-top:12px;background:#eee;border:0;padding:8px 10px;border-radius:6px;cursor:pointer}
-      .hint{font-size:0.85rem;color:#666;margin-bottom:8px}
-      /* hover and focus */
-      path.prefecture{cursor:pointer;transition:fill 150ms,opacity 120ms;}
-      path.prefecture:hover{opacity:0.85;filter:brightness(0.98);}
-      path.prefecture:focus{outline:3px solid rgba(11,116,222,0.15)}
+      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:40px;text-align:center}
+      a{color:#0b74de}
+      .note{color:#666;margin-top:18px}
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="map" aria-label="Map of Japan">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <h1 style="margin:0">Japan Prefecture Selector</h1>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button id="toggleSidebar" title="Toggle sidebar" aria-pressed="false" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer">Toggle List</button>
-          </div>
-        </div>
-        <p class="hint">Click prefectures to select them. Click again to deselect.</p>
-        <!-- Full SVG map (inlined from map-full.svg) -->
-        <svg class="geolonia-svg-map" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="maptitle">
-          <title id="maptitle">Japanese Prefectures</title>
-          <desc>Created by Geolonia (https://geolonia.com/).</desc>
-          <g class="svg-map" transform="matrix(1.028807, 0, 0, 1.028807, -47.544239, -28.806583)">
-            <g class="prefectures" transform="matrix(1, 0, 0, 1, 6, 18)">
-              <g class="okinawa kyushu-okinawa prefecture" data-code="47" stroke-linejoin="round" fill="#EEEEEE" fill-rule="nonzero" stroke="#000000" stroke-width="1.0" transform="translate(52.000000, 193.000000)">
-                <title>沖縄 / Okinawa</title>
-                <polygon points="4 109 6 110 4 111 0 110"/>
+    <h1>Prefecturizer</h1>
+    <p>Redirecting to the app… if you are not redirected, <a href="prefecturizer.html">click here</a>.</p>
+    <p class="note">This is a static landing page that links to the prefecturizer app.</p>
+  </body>
+</html>
                 <polygon points="48 121 55 123 51 129 39 124 42 122 44 125 46 118"/>
                 <polygon points="132 113 130 110 132 110 130 108 133 105 132 100 135 108 142 114"/>
                 <polygon points="225 23 224 28 219 23 223 21"/>
@@ -303,7 +248,67 @@
       </aside>
     </div>
 
+    <div id="tooltip" style="position:fixed;pointer-events:none;display:none;padding:8px;border-radius:6px;background:var(--tooltip-bg);color:var(--text);font-size:0.9rem;z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.25)"></div>
+
     <script>
+      // Theme handling
+      const THEME_KEY = 'prefecturizer_theme';
+      const themeSelect = document.getElementById('themeSelect');
+      function applyTheme(t){
+        if(t === 'system'){
+          document.documentElement.removeAttribute('data-theme');
+        } else {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      }
+      try{
+        const saved = localStorage.getItem(THEME_KEY) || 'system';
+        themeSelect.value = saved;
+        applyTheme(saved);
+      }catch(e){}
+      themeSelect.addEventListener('change', ()=>{
+        try{ localStorage.setItem(THEME_KEY, themeSelect.value); }catch(e){}
+        applyTheme(themeSelect.value);
+      });
+
+      // small color name helper: map hue ranges to simple names or use hex lookup
+      function colorNameFor(color){
+        // descriptive names for CB_PALETTE hex values (lowercased)
+        const descriptiveHex = {
+          '#377eb8': 'Strong Blue',
+          '#4daf4a': 'Leaf Green',
+          '#984ea3': 'Violet Purple',
+          '#ff7f00': 'Bright Orange',
+          '#ffff33': 'Sunshine Yellow',
+          '#a65628': 'Earth Brown',
+          '#f781bf': 'Soft Pink',
+          '#999999': 'Neutral Gray',
+          '#e41a1c': 'Crimson Red',
+          '#dede00': 'Pale Gold',
+          '#66c2a5': 'Muted Teal',
+          '#8da0cb': 'Sky Lavender'
+        };
+        if(!color) return 'Color';
+        if(color.startsWith('#')){
+          const key = color.toLowerCase();
+          return descriptiveHex[key] || 'Color';
+        }
+        // assume hsl(...) and extract hue; map to descriptive names
+        const m = color.match(/hsl\((\d+)/);
+        if(m){
+          const h = parseInt(m[1],10);
+          if(h < 15) return 'Crimson';
+          if(h < 45) return 'Tangerine';
+          if(h < 75) return 'Dandelion';
+          if(h < 135) return 'Mint Green';
+          if(h < 195) return 'Seafoam Teal';
+          if(h < 255) return 'Cobalt Blue';
+          if(h < 285) return 'Indigo';
+          if(h < 330) return 'Fuchsia';
+          return 'Crimson';
+        }
+        return 'Color';
+      }
       // Basic data structures
       const selected = new Map();
       const colorFor = (id) => {
@@ -322,9 +327,14 @@
       const clearBtn = document.getElementById('clearBtn');
       const selectAllBtn = document.getElementById('selectAllBtn');
       const SAVE_KEY = 'prefecturizer_selected';
+      const PALETTE_KEY = 'prefecturizer_palette';
       // color palette (enough distinct hues)
       const PALETTE_HUES = [22, 200, 330, 140, 260, 18, 45, 120, 280, 10, 210, 170];
       const PALETTE = PALETTE_HUES.map(h => `hsl(${h} 85% 55%)`);
+      // color-blind friendly palette (colorbrewer Set2/Set3-inspired)
+      const CB_PALETTE = [
+        '#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999','#e41a1c','#dede00','#66c2a5','#8da0cb'
+      ];
       // adjacency map: data-code -> Set(data-code)
       const adjacency = new Map();
 
@@ -403,6 +413,24 @@
         return name || code;
       }
 
+      // tooltip
+      const tooltip = document.getElementById('tooltip');
+      const paletteSelect = document.getElementById('paletteSelect');
+      let hoveredId = null;
+      function currentPalette(){
+        const p = localStorage.getItem(PALETTE_KEY) || 'default';
+        return p;
+      }
+      function paletteColorFor(id){
+        const p = currentPalette();
+        if(p === 'cb'){
+          const n = parseInt(id,10) || 0;
+          return CB_PALETTE[n % CB_PALETTE.length];
+        }
+        return colorFor(id);
+      }
+
+
       function setGroupFill(group, color){
         // apply fill to all child shapes (path, polygon, rect, circle)
         const shapes = group.querySelectorAll('path, polygon, rect, circle, g');
@@ -427,16 +455,18 @@
           const sw = document.createElement('span');
           sw.className = 'swatch';
           sw.style.background = meta.color;
+          // add a small tooltip for testing the assigned color
+          const cname = colorNameFor(meta.color || '');
+          sw.setAttribute('title', cname + ' (' + meta.color + ')');
+          sw.setAttribute('aria-label', `Color: ${cname}`);
           const name = document.createElement('div');
           name.textContent = meta.name;
           label.appendChild(sw);
           label.appendChild(name);
 
           const btn = document.createElement('button');
+          btn.className = 'remove-btn';
           btn.textContent = 'Remove';
-          btn.style.border = '0';
-          btn.style.background = 'transparent';
-          btn.style.cursor = 'pointer';
           btn.onclick = () => togglePref(id);
 
           item.appendChild(label);
@@ -480,7 +510,7 @@
           setGroupFill(group, '');
           group.setAttribute('aria-pressed','false');
         } else {
-          const color = colorFor(id);
+          const color = paletteColorFor(id);
           selected.set(id,{name, color});
           setGroupFill(group, color);
           group.setAttribute('aria-pressed','true');
@@ -494,7 +524,7 @@
           const id = g.getAttribute('data-code');
           if(!selected.has(id)){
             const name = getPrefName(g);
-            const color = colorFor(id);
+            const color = paletteColorFor(id);
             selected.set(id,{name,color});
             setGroupFill(g,color);
             g.setAttribute('aria-pressed','true');
@@ -521,6 +551,25 @@
             togglePref(id);
           }
         });
+        // tooltip handlers
+        g.addEventListener('mouseenter', (e)=>{
+          hoveredId = id;
+          const name = getPrefName(g);
+          const assigned = selected.get(id);
+          const color = assigned?.color || paletteColorFor(id);
+          tooltip.style.display = 'block';
+          const cname = colorNameFor(color);
+          // show only the prefecture name in the tooltip (no swatch)
+          tooltip.innerHTML = `<div style="color:var(--text);font-weight:600">${name}</div>`;
+        });
+        g.addEventListener('mousemove', (e)=>{
+          tooltip.style.left = (e.clientX + 12) + 'px';
+          tooltip.style.top = (e.clientY + 12) + 'px';
+        });
+        g.addEventListener('mouseleave', ()=>{
+          hoveredId = null;
+          tooltip.style.display = 'none';
+        });
       });
 
       clearBtn.addEventListener('click', () => {
@@ -528,9 +577,43 @@
         prefs.forEach(g => setGroupFill(g, ''));
         renderList();
         saveSelected();
+        // hide tooltip if visible
+        hoveredId = null;
+        tooltip.style.display = 'none';
       });
 
       selectAllBtn.addEventListener('click', () => selectAll());
+
+      // palette select wiring
+      try{
+        const savedPalette = localStorage.getItem(PALETTE_KEY) || 'default';
+        paletteSelect.value = savedPalette;
+      }catch(e){ }
+      paletteSelect.addEventListener('change', ()=>{
+        try{ localStorage.setItem(PALETTE_KEY, paletteSelect.value); }catch(e){}
+        // update any selected fills to new palette colors
+        selected.forEach((meta,id)=>{
+          const g = svg.querySelector(`[data-code="${id}"]`);
+          if(g){
+            const color = paletteColorFor(id);
+            meta.color = color;
+            selected.set(id,meta);
+            setGroupFill(g,color);
+          }
+        });
+        renderList();
+        // if tooltip is visible for a hovered prefecture, refresh its content to reflect the new palette
+        if(hoveredId){
+          const g = svg.querySelector(`[data-code="${hoveredId}"]`);
+          if(g){
+            const name = getPrefName(g);
+            const assigned = selected.get(hoveredId);
+            const color = assigned?.color || paletteColorFor(hoveredId);
+            // update tooltip to only show the name (no color preview)
+            tooltip.innerHTML = `<div style="color:var(--text);font-weight:600">${name}</div>`;
+          }
+        }
+      });
 
       // Sidebar toggle: persist state in localStorage
       const body = document.body;
