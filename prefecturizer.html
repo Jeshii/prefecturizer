@@ -24,6 +24,11 @@
       body{overflow-y:scroll}
       body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;display:block;padding:24px;background:var(--bg);color:var(--text)}
       .container{display:flex;gap:24px;align-items:flex-start;width:100%}
+      .site-links{margin-top:18px;text-align:center}
+      .link-card{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid var(--card-border);background:var(--card-bg);color:var(--text);text-decoration:none;font-weight:600}
+      .link-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+      .link-card .swatch{width:18px;height:18px;border-radius:6px;border:1px solid rgba(0,0,0,0.08);flex:0 0 18px}
+      .link-card .link-text{font-size:0.95rem;color:var(--text)}
       .map{flex:1 1 0%;min-width:420px;border:1px solid var(--card-border);padding:8px;border-radius:8px;background:var(--card-bg)}
       svg{width:100%;height:auto;display:block}
       /* Force prefectural stroke color to black so borders remain visible in dark mode */
@@ -67,6 +72,7 @@
       path.prefecture{cursor:pointer;transition:fill 150ms,opacity 120ms;}
       path.prefecture:hover{opacity:0.85;filter:brightness(0.98);}
       path.prefecture:focus{outline:3px solid rgba(11,116,222,0.15)}
+      .gh-link{min-width:200px}
     </style>
   </head>
   <body>
@@ -311,10 +317,6 @@
             </g>
           </g>
         </svg>
-        <div style="margin-top:12px;font-size:0.95rem;color:var(--muted)">
-          <div>Project by <a href="https://github.com/Jeshii" target="_blank" rel="noopener">Jeshii</a></div>
-          <div>SVG source: <a href="https://github.com/geolonia/japanese-prefectures/" target="_blank" rel="noopener">geolonia/japanese-prefectures</a></div>
-        </div>
       </div>
 
       <aside class="sidebar" aria-label="Selected Prefectures">
@@ -322,6 +324,8 @@
           <h1>Selected <span id="selectedCount" style="font-weight:400;color:#666">(0)</span></h1>
           <div id="saveHint" style="font-size:0.9rem;color:#666">Saved locally</div>
         </div>
+
+      
         <div class="selected-list" id="selectedList" aria-live="polite">
           <div id="emptyState">No prefectures selected.</div>
         </div>
@@ -331,7 +335,18 @@
         </div>
       </aside>
     </div>
-
+    <div class="site-links" aria-label="Project links">
+      <div class="links-inner" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <a class="link-card gh-link" id="link-me" href="https://github.com/Jeshii" target="_blank" rel="noopener">
+          <span class="swatch" aria-hidden="true"></span>
+          <span class="link-text">Jeshii</span>
+        </a>
+        <a class="link-card gh-link" id="link-src" href="https://github.com/geolonia/japanese-prefectures/" target="_blank" rel="noopener">
+          <span class="swatch" aria-hidden="true"></span>
+          <span class="link-text">geolonia / japanese-prefectures</span>
+        </a>
+      </div>
+    </div>
     <div id="tooltip" style="position:fixed;pointer-events:none;display:none;padding:8px;border-radius:6px;background:var(--tooltip-bg);color:var(--text);font-size:0.9rem;z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.25)"></div>
 
     <script>
@@ -697,6 +712,8 @@
             tooltip.innerHTML = `<div style="color:var(--text);font-weight:600">${name}</div>`;
           }
         }
+        // update footer swatches too
+        if(typeof applyFooterSwatches === 'function') applyFooterSwatches();
       });
 
       // Sidebar toggle: persist state in localStorage
@@ -733,6 +750,25 @@
       // restore persisted selections, then render
       loadSelected();
       renderList();
+
+      // Footer/link swatch helpers: choose two palette colors and apply
+      function pickFooterColors(){
+        const p = currentPalette();
+        if(p === 'cb'){
+          return [CB_PALETTE[0], CB_PALETTE[2]];
+        }
+        return [PALETTE[0], PALETTE[2]];
+      }
+      function applyFooterSwatches(){
+        const [c1,c2] = pickFooterColors();
+        const a = document.getElementById('link-me');
+        const b = document.getElementById('link-src');
+        if(a){ const s = a.querySelector('.swatch'); if(s) s.style.background = c1; }
+        if(b){ const s = b.querySelector('.swatch'); if(s) s.style.background = c2; }
+      }
+      // initial apply
+      applyFooterSwatches();
+
     </script>
   </body>
 </html>
