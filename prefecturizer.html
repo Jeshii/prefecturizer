@@ -77,7 +77,9 @@
       .modal.visible{display:flex !important}
       .header-button{background:var(--text);color:var(--bg);border:1px solid var(--text);padding:6px 8px;border-radius:6px;cursor:pointer}
       .header-button:hover{opacity:0.8}
+      .header-button:disabled{opacity:0.5;cursor:not-allowed}
       .header-select{background:var(--text);color:var(--bg);border:1px solid var(--text);padding:6px 8px;border-radius:6px;cursor:pointer}
+      button.clear:disabled{opacity:0.5;cursor:not-allowed}
     </style>
   </head>
   <body>
@@ -542,6 +544,8 @@
         // Update UI
         document.getElementById('compareBtn').style.display = 'none';
         document.getElementById('exitCompareBtn').style.display = 'inline-block';
+        clearBtn.disabled = true;
+        selectAllBtn.disabled = true;
         renderList();
       }
 
@@ -598,6 +602,8 @@
         // Update UI
         document.getElementById('compareBtn').style.display = 'inline-block';
         document.getElementById('exitCompareBtn').style.display = 'none';
+        clearBtn.disabled = false;
+        selectAllBtn.disabled = false;
 
         renderList();
       }
