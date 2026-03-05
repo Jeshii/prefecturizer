@@ -711,32 +711,76 @@
           list.appendChild(emptyState);
           return;
         }
-        for(const [id, meta] of selected){
-          const item = document.createElement('div');
-          item.className = 'pref-item';
-          const label = document.createElement('div');
-          label.className = 'pref-label';
-          const sw = document.createElement('span');
-          sw.className = 'swatch';
-          sw.style.background = meta.color;
-          // add a small tooltip for testing the assigned color
-          const cname = colorNameFor(meta.color || '');
-          sw.setAttribute('title', cname + ' (' + meta.color + ')');
-          sw.setAttribute('aria-label', `Color: ${cname}`);
-          const name = document.createElement('div');
-          name.textContent = meta.name;
-          label.appendChild(sw);
-          label.appendChild(name);
 
-          const btn = document.createElement('button');
-          btn.className = 'remove-btn';
-          btn.textContent = 'Remove';
-          btn.onclick = () => togglePref(id);
+        // In compare mode, group items by type
+        if(compareMode){
+          const overlap = [];
+          const userOnly = [];
+          const otherOnly = [];
 
-          item.appendChild(label);
-          item.appendChild(btn);
-          list.appendChild(item);
+          for(const [id, meta] of selected){
+            if(meta.compareType === 'overlap') overlap.push([id, meta]);
+            else if(meta.compareType === 'user') userOnly.push([id, meta]);
+            else if(meta.compareType === 'other') otherOnly.push([id, meta]);
+          }
+
+          // Render with headers
+          if(overlap.length > 0){
+            const header = document.createElement('div');
+            header.style.cssText = 'font-weight:bold;padding:8px;margin-top:8px;margin-bottom:4px;border-bottom:2px solid var(--muted);color:var(--text)';
+            header.textContent = '💜 Both Selected (' + overlap.length + ')';
+            list.appendChild(header);
+            overlap.forEach(([id, meta]) => renderListItem(id, meta));
+          }
+
+          if(userOnly.length > 0){
+            const header = document.createElement('div');
+            header.style.cssText = 'font-weight:bold;padding:8px;margin-top:8px;margin-bottom:4px;border-bottom:2px solid var(--muted);color:var(--text)';
+            header.textContent = '💙 Your Selection (' + userOnly.length + ')';
+            list.appendChild(header);
+            userOnly.forEach(([id, meta]) => renderListItem(id, meta));
+          }
+
+          if(otherOnly.length > 0){
+            const header = document.createElement('div');
+            header.style.cssText = 'font-weight:bold;padding:8px;margin-top:8px;margin-bottom:4px;border-bottom:2px solid var(--muted);color:var(--text)';
+            header.textContent = '🧡 Their Selection (' + otherOnly.length + ')';
+            list.appendChild(header);
+            otherOnly.forEach(([id, meta]) => renderListItem(id, meta));
+          }
+        } else {
+          // Normal mode: render all items
+          for(const [id, meta] of selected){
+            renderListItem(id, meta);
+          }
         }
+      }
+
+      function renderListItem(id, meta){
+        const item = document.createElement('div');
+        item.className = 'pref-item';
+        const label = document.createElement('div');
+        label.className = 'pref-label';
+        const sw = document.createElement('span');
+        sw.className = 'swatch';
+        sw.style.background = meta.color;
+        // add a small tooltip for testing the assigned color
+        const cname = colorNameFor(meta.color || '');
+        sw.setAttribute('title', cname + ' (' + meta.color + ')');
+        sw.setAttribute('aria-label', `Color: ${cname}`);
+        const name = document.createElement('div');
+        name.textContent = meta.name;
+        label.appendChild(sw);
+        label.appendChild(name);
+
+        const btn = document.createElement('button');
+        btn.className = 'remove-btn';
+        btn.textContent = 'Remove';
+        btn.onclick = () => togglePref(id);
+
+        item.appendChild(label);
+        item.appendChild(btn);
+        list.appendChild(item);
       }
 
       function saveSelected(){
