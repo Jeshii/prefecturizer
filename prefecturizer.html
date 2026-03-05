@@ -882,7 +882,8 @@
       shareBtn.addEventListener('click', () => {
         const codes = Array.from(selected.keys());
         const encoded = encodeState(codes);
-        const url = window.location.origin + window.location.pathname + '?state=' + encoded;
+        const baseUrl = window.location.href.split('?')[0];
+        const url = baseUrl + '?state=' + encoded;
         copyToClipboard(url);
       });
 
