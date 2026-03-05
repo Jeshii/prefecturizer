@@ -72,6 +72,7 @@
       path.prefecture{cursor:pointer;transition:fill 150ms,opacity 120ms;}
       path.prefecture:hover{opacity:0.85;filter:brightness(0.98);}
       path.prefecture:focus{outline:3px solid rgba(11,116,222,0.15)}
+      body.compare-mode path.prefecture{cursor:not-allowed}
       .gh-link{min-width:200px}
       .modal{display:none !important}
       .modal.visible{display:flex !important}
@@ -546,6 +547,7 @@
         document.getElementById('exitCompareBtn').style.display = 'inline-block';
         clearBtn.disabled = true;
         selectAllBtn.disabled = true;
+        body.classList.add('compare-mode');
         renderList();
       }
 
@@ -604,6 +606,7 @@
         document.getElementById('exitCompareBtn').style.display = 'none';
         clearBtn.disabled = false;
         selectAllBtn.disabled = false;
+        body.classList.remove('compare-mode');
 
         renderList();
       }
@@ -857,12 +860,12 @@
         g.setAttribute('aria-pressed', 'false');
         g.dataset.name = getPrefName(g);
         g.addEventListener('click', (e) => {
-          togglePref(id);
+          if(!compareMode) togglePref(id);
         });
         g.addEventListener('keydown', (e) => {
           if(e.key === 'Enter' || e.key === ' '){
             e.preventDefault();
-            togglePref(id);
+            if(!compareMode) togglePref(id);
           }
         });
         // tooltip handlers
