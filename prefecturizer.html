@@ -475,7 +475,8 @@
           const json = atob(encoded); // Base64 decode
           const state = JSON.parse(json);
           if(state.selected && Array.isArray(state.selected)){
-            return state.selected.map(c => String(c).padStart(2,'0')).filter(c => /^\d{2}$/.test(c));
+            // Keep codes as-is (they may be "9" or "09" depending on SVG data-code format)
+            return state.selected.map(c => String(c)).filter(c => /^\d+$/.test(c));
           }
         }catch(e){}
         return [];
