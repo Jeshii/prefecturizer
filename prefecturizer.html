@@ -75,6 +75,9 @@
       .gh-link{min-width:200px}
       .modal{display:none !important}
       .modal.visible{display:flex !important}
+      .header-button{background:var(--text);color:var(--bg);border:1px solid var(--text);padding:6px 8px;border-radius:6px;cursor:pointer}
+      .header-button:hover{opacity:0.8}
+      .header-select{background:var(--text);color:var(--bg);border:1px solid var(--text);padding:6px 8px;border-radius:6px;cursor:pointer}
     </style>
   </head>
   <body>
@@ -83,15 +86,15 @@
         <div style="display:flex;align-items:center;justify-content:space-between">
           <h1 style="margin:0">Japan Prefecture Selector</h1>
           <div style="display:flex;gap:8px;align-items:center">
-              <button id="toggleSidebar" title="Toggle sidebar" aria-pressed="false" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer">Toggle List</button>
-              <button id="shareBtn" title="Share selections as URL" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer">Share</button>
-              <button id="compareBtn" title="Compare with another selection" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer">Compare</button>
-              <button id="exitCompareBtn" title="Exit compare mode" style="display:none;background:var(--card-bg);border:1px solid var(--card-border);padding:6px 8px;border-radius:6px;cursor:pointer;color:var(--text);font-size:14px">Exit Compare</button>
-              <select id="paletteSelect" title="Accessible palette" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer">
+              <button id="toggleSidebar" class="header-button" title="Toggle sidebar" aria-pressed="false">Toggle List</button>
+              <button id="shareBtn" class="header-button" title="Share selections as URL">Share</button>
+              <button id="compareBtn" class="header-button" title="Compare with another selection">Compare</button>
+              <button id="exitCompareBtn" class="header-button" title="Exit compare mode" style="display:none">Exit Compare</button>
+              <select id="paletteSelect" class="header-select" title="Accessible palette">
                 <option value="default">Default</option>
                 <option value="cb">Accessible</option>
               </select>
-              <select id="themeSelect" title="Theme" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer;margin-left:6px">
+              <select id="themeSelect" class="header-select" title="Theme" style="margin-left:6px">
                 <option value="system">System</option>
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
