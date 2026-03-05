@@ -73,6 +73,8 @@
       path.prefecture:hover{opacity:0.85;filter:brightness(0.98);}
       path.prefecture:focus{outline:3px solid rgba(11,116,222,0.15)}
       .gh-link{min-width:200px}
+      .modal{display:none !important}
+      .modal.visible{display:flex !important}
     </style>
   </head>
   <body>
@@ -82,6 +84,9 @@
           <h1 style="margin:0">Japan Prefecture Selector</h1>
           <div style="display:flex;gap:8px;align-items:center">
               <button id="toggleSidebar" title="Toggle sidebar" aria-pressed="false" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer">Toggle List</button>
+              <button id="shareBtn" title="Share selections as URL" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer">Share</button>
+              <button id="compareBtn" title="Compare with another selection" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer">Compare</button>
+              <button id="exitCompareBtn" title="Exit compare mode" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer;display:none">Exit Compare</button>
               <select id="paletteSelect" title="Accessible palette" style="background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:6px;cursor:pointer">
                 <option value="default">Default</option>
                 <option value="cb">Accessible</option>
@@ -101,6 +106,31 @@
           <a class="link-card gh-link" id="link-src" href="https://github.com/geolonia/japanese-prefectures/" target="_blank" rel="noopener">
             <span class="link-text">SVG courtesy geolonia/japanese-prefectures</span>
           </a>
+        </div>
+        <!-- Compare Modal -->
+        <div id="compareModal" class="modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+          <div style="background:var(--bg);border:1px solid var(--card-border);border-radius:8px;padding:24px;max-width:500px;width:90%">
+            <h2 style="margin-top:0;color:var(--text)">Compare Selections</h2>
+            <p style="color:var(--text)">Paste a share URL or encoded state:</p>
+            <input id="compareInput" type="text" placeholder="e.g., http://... or eyJz..." style="width:100%;padding:8px;border:1px solid var(--card-border);border-radius:4px;box-sizing:border-box;background:var(--card-bg);color:var(--text)">
+            <p id="compareError" style="color:#e74c3c;font-size:0.9rem;margin:8px 0 0 0;display:none"></p>
+            <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+              <button id="compareCancelBtn" style="background:#fff;border:1px solid var(--card-border);padding:8px 16px;border-radius:4px;cursor:pointer;color:var(--text)">Cancel</button>
+              <button id="compareSubmitBtn" style="background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer">Compare</button>
+            </div>
+          </div>
+        </div>
+        <!-- Summary Modal -->
+        <div id="summaryModal" class="modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1001;align-items:center;justify-content:center">
+          <div style="background:var(--bg);border:1px solid var(--card-border);border-radius:8px;padding:24px;max-width:400px;width:90%">
+            <h2 style="margin-top:0;color:var(--text)">Comparison Summary</h2>
+            <div style="color:var(--text);line-height:1.8;margin-bottom:16px">
+              <p id="summaryText"></p>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+              <button id="summaryOkBtn" style="background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer">OK</button>
+            </div>
+          </div>
         </div>
         <!-- Full SVG map (inlined from map-full.svg) -->
         <svg class="geolonia-svg-map" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="maptitle">
@@ -433,6 +463,141 @@
       // adjacency map: data-code -> Set(data-code)
       const adjacency = new Map();
 
+      // ====== STATE ENCODING/DECODING FOR SHARING ======
+      function encodeState(codes){
+        const state = {selected: codes};
+        const json = JSON.stringify(state);
+        return btoa(json); // Base64 encode
+      }
+
+      function decodeState(encoded){
+        try{
+          const json = atob(encoded); // Base64 decode
+          const state = JSON.parse(json);
+          if(state.selected && Array.isArray(state.selected)){
+            return state.selected.map(c => String(c).padStart(2,'0')).filter(c => /^\d{2}$/.test(c));
+          }
+        }catch(e){}
+        return [];
+      }
+
+      function parseStateInput(input){
+        // Try to extract state from URL or return as-is if already encoded
+        let stateParam = null;
+        try{
+          const url = new URL(input, window.location.href);
+          stateParam = url.searchParams.get('state');
+        }catch(e){
+          // Not a URL, assume it's encoded state
+          stateParam = input.trim();
+        }
+        return stateParam || input.trim();
+      }
+
+      function generateRandomColor(){
+        const hue = Math.floor(Math.random() * 360);
+        return `hsl(${hue} 75% 55%)`;
+      }
+
+      function copyToClipboard(text){
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById('shareBtn');
+          const orig = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = orig; }, 2000);
+        }).catch(() => {
+          alert('Failed to copy. URL: ' + text);
+        });
+      }
+
+      // ====== COMPARE MODE STATE ======
+      let compareMode = false;
+      let preCompareSelected = null;
+      let userCodes = [];
+      let otherCodes = [];
+      let userColor = '';
+      let otherColor = '';
+      let overlapColor = '';
+
+      function enterCompareMode(otherSelectedCodes){
+        compareMode = true;
+        // Save current selection
+        preCompareSelected = new Map(selected);
+        userCodes = Array.from(selected.keys());
+        otherCodes = otherSelectedCodes;
+
+        // Generate random colors for visualization
+        userColor = generateRandomColor();
+        otherColor = generateRandomColor();
+        overlapColor = generateRandomColor();
+
+        // Clear and render visualization
+        selected.clear();
+        renderCompareVisualization(userCodes, otherCodes, userColor, otherColor, overlapColor);
+
+        // Update UI
+        document.getElementById('compareBtn').style.display = 'none';
+        document.getElementById('exitCompareBtn').style.display = 'inline-block';
+        renderList();
+      }
+
+      function renderCompareVisualization(userCodes, otherCodes, userColor, otherColor, overlapColor){
+        const userSet = new Set(userCodes);
+        const otherSet = new Set(otherCodes);
+
+        prefs.forEach(g => {
+          const id = g.getAttribute('data-code');
+          const isUser = userSet.has(id);
+          const isOther = otherSet.has(id);
+
+          if(isUser && isOther){
+            // Overlap
+            const color = overlapColor;
+            setGroupFill(g, color);
+            selected.set(id, {name: getPrefName(g), color, compareType: 'overlap'});
+          } else if(isUser){
+            // User only
+            const color = userColor;
+            setGroupFill(g, color);
+            selected.set(id, {name: getPrefName(g), color, compareType: 'user'});
+          } else if(isOther){
+            // Other only
+            const color = otherColor;
+            setGroupFill(g, color);
+            selected.set(id, {name: getPrefName(g), color, compareType: 'other'});
+          } else {
+            setGroupFill(g, '');
+          }
+        });
+      }
+
+      function exitCompareMode(){
+        compareMode = false;
+        selected.clear();
+        // Restore pre-compare selections
+        preCompareSelected.forEach((meta, id) => {
+          selected.set(id, meta);
+          const g = svg.querySelector(`[data-code="${id}"]`);
+          if(g) setGroupFill(g, meta.color);
+        });
+
+        // Calculate summary
+        const userSet = new Set(userCodes);
+        const otherSet = new Set(otherCodes);
+        const overlap = userCodes.filter(c => otherSet.has(c));
+        const overlapPct = userCodes.length > 0 ? Math.round(overlap.length / userCodes.length * 100) : 0;
+
+        const summaryText = `You selected ${userCodes.length}, other selected ${otherCodes.length}, with ${overlap.length} in common${userCodes.length > 0 ? ` (${overlapPct}% overlap)` : ''}.`;
+        document.getElementById('summaryText').textContent = summaryText;
+        summaryModal.classList.add('visible');
+
+        // Update UI
+        document.getElementById('compareBtn').style.display = 'inline-block';
+        document.getElementById('exitCompareBtn').style.display = 'none';
+
+        renderList();
+      }
+
       function rectsTouchOrOverlap(a,b,eps=0.5){
         return !(a.x + a.width < b.x - eps || b.x + b.width < a.x - eps || a.y + a.height < b.y - eps || b.y + b.height < a.y - eps);
       }
@@ -712,6 +877,72 @@
         if(typeof applyFooterSwatches === 'function') applyFooterSwatches();
       });
 
+      // ====== SHARE BUTTON ======
+      const shareBtn = document.getElementById('shareBtn');
+      shareBtn.addEventListener('click', () => {
+        const codes = Array.from(selected.keys());
+        const encoded = encodeState(codes);
+        const url = window.location.origin + window.location.pathname + '?state=' + encoded;
+        copyToClipboard(url);
+      });
+
+      // ====== COMPARE BUTTON AND MODALS ======
+      const compareBtn = document.getElementById('compareBtn');
+      const compareModal = document.getElementById('compareModal');
+      const compareCancelBtn = document.getElementById('compareCancelBtn');
+      const compareSubmitBtn = document.getElementById('compareSubmitBtn');
+      const compareInput = document.getElementById('compareInput');
+      const compareError = document.getElementById('compareError');
+      const exitCompareBtn = document.getElementById('exitCompareBtn');
+      const summaryModal = document.getElementById('summaryModal');
+      const summaryOkBtn = document.getElementById('summaryOkBtn');
+
+      compareBtn.addEventListener('click', () => {
+        compareModal.classList.add('visible');
+        compareInput.value = '';
+        compareError.style.display = 'none';
+        compareInput.focus();
+      });
+
+      compareCancelBtn.addEventListener('click', () => {
+        compareModal.classList.remove('visible');
+      });
+
+      compareSubmitBtn.addEventListener('click', () => {
+        const input = compareInput.value.trim();
+        if(!input){
+          compareError.textContent = 'Please enter a URL or encoded state';
+          compareError.style.display = 'block';
+          return;
+        }
+
+        const stateParam = parseStateInput(input);
+        const codes = decodeState(stateParam);
+
+        if(codes.length === 0){
+          compareError.textContent = 'Invalid state or URL. Please try again.';
+          compareError.style.display = 'block';
+          return;
+        }
+
+        compareModal.classList.remove('visible');
+        enterCompareMode(codes);
+      });
+
+      compareInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter'){
+          compareSubmitBtn.click();
+        }
+      });
+
+      exitCompareBtn.addEventListener('click', () => {
+        exitCompareMode();
+      });
+
+      summaryOkBtn.addEventListener('click', () => {
+        summaryModal.classList.remove('visible');
+      });
+
       // Sidebar toggle: persist state in localStorage
       const body = document.body;
       const toggleBtn = document.getElementById('toggleSidebar');
@@ -743,8 +974,34 @@
         setSidebarExpanded(preferExpanded);
       })();
 
-      // restore persisted selections, then render
-      loadSelected();
+      // restore persisted selections (or from URL), then render
+      function loadFromURL(){
+        try{
+          const params = new URLSearchParams(window.location.search);
+          const stateParam = params.get('state');
+          if(stateParam){
+            const codes = decodeState(stateParam);
+            if(codes.length > 0){
+              codes.forEach(id => {
+                const g = svg.querySelector(`[data-code="${id}"]`);
+                if(g){
+                  const name = getPrefName(g);
+                  const color = colorFor(id);
+                  selected.set(id,{name,color});
+                  setGroupFill(g,color);
+                }
+              });
+              return true;
+            }
+          }
+        }catch(e){}
+        return false;
+      }
+
+      // Try URL first, then localStorage
+      if(!loadFromURL()){
+        loadSelected();
+      }
       renderList();
 
       // Footer/link swatch helpers: choose two palette colors and apply
